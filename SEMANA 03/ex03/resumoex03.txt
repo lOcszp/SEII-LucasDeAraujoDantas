@@ -1,0 +1,36 @@
+Uma instância sendo executada é chamada de processo, cada terminal provavelmente usa um shell e cada shell sendo executado é outro processo. Os programadores avançados usam múltiplos processos em sintonia numa única aplicação para aumentar a robustez da aplicação. O computador utiliza vários processos, mesmo estando em situação de IDLE, o sistema linux possui um processo único chamado “process ID” este processo é formado por 16-bit de números, todo processo também possui um “processo pai”, exceto  o processo especial inicial que é chamado de “processo zumbi”, se pensarmos como uma árvore o init process seria a raiz dessa árvore. Ao se referir aos processos IDs  em C ou C++, sempre use o pid_t typedef que é definido na biblioteca <sys/types.h>. Um programa pode obter seu processo ID ou processo pai, com as seguintes funções: getpid() ou getppid().
+O comando ps mostra todos os processos  acontecendo no linux, por padrão chamar ps chama um terminal com todos os processos. A invocação do ps mostra dois processos a instância do programa ps por si só e o bash, que é  o shell rodando no terminal. A opção -e mostra todos os processos rodando no momento, a opção -o pid, ppid, mostra informações específicas sobre o processo.
+Para matar um processo você pode utilizar o comando kill e especificar a linha de comando que você pretende encerrar, o comando kill manda o processo SIGTERM, ou terminação de sinal realizar o trabalho.
+Para criar um processo, é comumente utilizado duas técnicas, uma mais simples porém não segue boas práticas de eficiência e segurança e outra é mais complexa, porém segue as boas práticas citadas anteriormente. Utilizando o comando system na biblioteca padrão C fornece uma maneira fácil de executar o comando dentro do programa, como se ele tivesse sido escrito no shell, como citado anteriormente esse método não é muito recomendado, devido ao invocar o programa com privilégios root pode ter diferentes resultados em sistemas diferentes GNU/Linux, por isso é preferível utilizar os comandos fork e exec.
+É utilizado fork e exec, por no linux não possuir nenhum comando que faça o que esses dois façam junto em um passo, o comando fork faz um child process que é uma copia idêntica do processo pai após isso é utilizado o comando exec para transformar um desses processos em uma instância do programa que você quer spawnar.
+Como dito, o processo fork faz uma cópia idêntica ao processo pai eles são diferenciados por diferentes IDs de processo A família de funções exec substitui o processo em execução atual por um novo processo. Ele pode ser usado para executar um programa C usando outro programa C. Ele vem sob o arquivo de cabeçalho unistd.h. Há muitos membros na família exec que são mostrados abaixo com exemplos.
+execvp: Usando este comando, o processo filho criado não precisa executar o mesmo programa que o processo pai. As chamadas de sistema do tipo exec permitem que um processo execute qualquer arquivo de programa, que inclui um executável binário ou um script de shell. Agendamento de processo, o linux agenda o processo de pai e filho de maneira independente, ou seja, não há garantia qual ele irá executar primeiro ou por quanto tempo, porém você pode especificar qual o processo mais importante. Os sinais são mecanismos para comunicação com manipulação de processos no linux. É um tipo de comunicação assíncrona e baseada em eventos.
+Existem diversos tipos de sinais, cada um apropriado para um certo tipo de evento: no artigo passado, foram apresentados sinais para parar a execução, para pausar um processo, e para resumir um processo.
+
+Cada sinal possui um comportamento default definido pelo sistema operacional. A maioria destes comportamentos podem ser sobrescritos, ao passo que alguns outros poucos não
+
+SIGHUP: O sinal SIGHUP
+às vezes também é usado para esse propósito, geralmente para ativar um programa inativo ou fazer com que um programa releia seus arquivos de configuração.
+SIGTERM: Informa que o programa deve terminar a execução;
+Possui o mesmo comportamento default que o SIGHUP;
+É o sinal padrão enviado pelos comandos kill e killall;
+SIGINT: O sinal SIGINT é enviado
+para um processo quando o usuário tentar finalizá-lo digitando Ctrl+C em seu terminal
+SIGKILL: Finaliza forçadamente o programa;
+É parecido com o SIGINT e o SIGTERM, mas não pode ser sobrescrito;
+
+Todo processo possui uma maneira de ser terminado, Para enviar um sinal de um programa, use a função kill. Por convenção, o código de saída é usado para indicar se o programa foi executado corretamente. Um código de saída de zero indica a execução correta, enquanto um código de saída diferente de zero indica que ocorreu um erro. Neste último caso, o valor específico retornado pode dar alguma indicação da natureza do erro.
+
+Ao utilizar o comando fork e exec ocasionalmente a saída do programa ls, aparece depois que o “programa principal” já foi concluído. Linux é um sistema operacional multitarefa, ambos os processos parecem ser executados simultaneamente e você não pode prever se o programa terá a chance de ser executado antes ou depois da execução do processo pai. Em algumas situações, porém, é desejável que o processo pai espere até que um ou mais processos filho sejam concluídos. Essas funções permitem que você espere que um processo termine de ser executado e permite que o processo pai recupere informações sobre o término de seu filho. 
+
+A função mais simples é chamada simplesmente esperar. Bloqueia o processo de chamada até que um de seus processos filho é encerrado (ou ocorre um erro). Ele retorna um código de status por meio de um inteiro argumento de ponteiro, do qual você pode extrair informações sobre como o  processo filho saiu. O WIFEXITED macro pode ser utilizado para terminar o processo do filho.
+Se um processo filho terminar enquanto seu pai está chamando uma função de espera, o processo filho desaparece e seu status de término é passado para seu pai por meio da chamada de espera, caso o processo filho terminar e o pai não estar chamando a função de espera ela se torna um processo zumbi, que é Um processo zumbi é um processo que terminou, mas ainda não foi limpo. Isto é responsabilidade do processo pai limpar seus filhos zumbis.
+
+
+
+
+
+
+
+
+
